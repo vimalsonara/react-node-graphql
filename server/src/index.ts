@@ -4,6 +4,7 @@ import { expressMiddleware } from "@apollo/server/express4";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import { prisma } from "./lib/db";
 
 dotenv.config();
 
@@ -16,6 +17,10 @@ async function startServer() {
         name: String!
         email: String!
         userName: String!
+      }
+
+      type Mutation {
+        createUser(firstName: String!, lastName: String!, email: String!, password: String!): Boolean 
       }
 
       type Query {
@@ -34,6 +39,20 @@ async function startServer() {
             userName: "john",
           },
         ],
+      },
+      Mutation: {
+        createUser: async (_, { firstName, lastName, email, password }: { firstName: string, lastName: string, email: string, password: string }) => {
+          await prisma.user.create({
+            data: {
+              firstName,
+              lastName,
+              email,
+              password,
+              salt: "123",
+            }
+          })
+          return true
+        },
       },
     },
   });
