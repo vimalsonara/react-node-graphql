@@ -1,5 +1,4 @@
 import { ApolloServer } from "@apollo/server";
-import { prisma } from "../lib/db";
 import { User } from "./user";
 
 async function createApploGraphqlServer() {
