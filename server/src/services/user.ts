@@ -43,6 +43,14 @@ export default class UserService {
     })
   }
 
+  public static async getUserById(id: string) {
+    return prisma.user.findFirst({
+      where: {
+        id
+      }
+    })
+  }
+
   public static async loginUser(payload: LoginUserPayload) {
     const { email, password } = payload
     const user = await UserService.getUserByEmail(email)
@@ -60,5 +68,9 @@ export default class UserService {
 
     const token = JWT.sign({ id: user.id, email }, process.env.JWT_SECRET as string)
     return token
+  }
+
+  public static decodeToken(token: string) {
+    return JWT.verify(token, process.env.JWT_SECRET as string)
   }
 }
