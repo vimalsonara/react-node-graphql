@@ -6,4 +6,15 @@ export const typeDefs = `#graphql
     email: String!
     profileImageURL: String
   }
+
+  type AuthResponse {
+    success: Boolean!
+    message: String
+    token: String
+  }
+
+  type AuthStatus {
+    authenticated: Boolean!
+    user: User
+  }
 `;

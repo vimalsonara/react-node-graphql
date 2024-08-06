@@ -1,22 +1,11 @@
-import { gql, useQuery } from "@apollo/client";
-
-const query = gql`
-  query GetUsers {
-    getAllUsers {
-      id
-      name
-      email
-      userName
-    }
-  }
-`;
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { routes } from "./routes";
 
 export default function App() {
-  const { data, loading } = useQuery(query);
-
+  const router = createBrowserRouter(routes);
   return (
     <div>
-      {loading ? <p>Loading...</p> : <p>{JSON.stringify(data.getAllUsers)}</p>}
+      <RouterProvider router={router} />
     </div>
   );
 }
