@@ -6,11 +6,31 @@ import cors from "cors";
 import dotenv from "dotenv";
 import createApploGraphqlServer from "./graphql";
 import UserService from "./services/user";
+import morgan from "morgan";
+import { logger } from "./lib/logger";
 dotenv.config();
 
 async function startServer() {
   const app = express();
+
+  const morganFormat = ":method :url :status :response-time ms";
+
   app.use(bodyParser.json());
+  app.use(
+    morgan(morganFormat, {
+      stream: {
+        write: (message: string) => {
+          const logObject = {
+            method: message.split(" ")[0],
+            url: message.split(" ")[1],
+            status: message.split(" ")[2],
+            responseTime: message.split(" ")[3],
+          };
+          logger.info(JSON.stringify(logObject));
+        },
+      },
+    }),
+  );
   app.use(cookieParser());
   app.use(
     cors({
@@ -36,7 +56,7 @@ async function startServer() {
           try {
             user = UserService.decodeToken(token);
           } catch (err) {
-            console.error("Token decoding error:", err);
+            logger.error("Token decoding error:", err);
           }
         }
         return { user, res };
@@ -45,7 +65,7 @@ async function startServer() {
   );
 
   app.listen(process.env.PORT, () =>
-    console.log(`Server is listening on port ${process.env.PORT}`),
+    logger.info(`Server is listening on port ${process.env.PORT}`),
   );
 }
 
