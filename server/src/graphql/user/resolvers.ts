@@ -22,23 +22,23 @@ const queries = {
 const mutations = {
   createUser: async (_: any, payload: CreateUserPayload) => {
     try {
-      const user = await UserService.createUser(payload);
+      await UserService.createUser(payload);
+
       return {
         success: true,
         message: "User created successfully",
-        token: null,
       };
     } catch (error: any) {
       return { success: false, message: error.message, token: null };
     }
   },
-  getUserToken: async (
+  loginUser: async (
     _: any,
     payload: { email: string; password: string },
     context: any,
   ) => {
     try {
-      const token = await UserService.loginUser(payload);
+      const { token, user } = await UserService.loginUser(payload);
       if (context.res && typeof context.res.cookie === "function") {
         UserService.setTokenCookie(context.res, token);
       } else {
@@ -46,7 +46,7 @@ const mutations = {
           "Unable to set cookie, res object or cookie method is unavailable",
         );
       }
-      return { success: true, message: "Logged in successfully", token };
+      return { success: true, message: "Logged in successfully", user };
     } catch (error: any) {
       return { success: false, message: error.message, token: null };
     }

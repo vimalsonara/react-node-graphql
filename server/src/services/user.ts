@@ -70,7 +70,7 @@ export default class UserService {
       { id: user.id, email },
       process.env.JWT_SECRET as string,
     );
-    return token;
+    return { token, user };
   }
 
   public static decodeToken(token: string) {

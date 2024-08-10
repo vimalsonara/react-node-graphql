@@ -10,7 +10,7 @@ export const typeDefs = `#graphql
   type AuthResponse {
     success: Boolean!
     message: String
-    token: String
+    user: User
   }
 
   type AuthStatus {
