@@ -1,9 +1,10 @@
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
 
 type User = {
-  name: string;
+  id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  token: string;
 };
 
 type AuthContext = {
@@ -31,11 +32,20 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   const login = (user: User) => {
+    localStorage.setItem("user", JSON.stringify(user));
     setUser(user);
   };
 
   const logout = () => {
+    localStorage.removeItem("user");
     setUser(null);
   };
 
