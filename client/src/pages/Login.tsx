@@ -1,37 +1,59 @@
-import { useState } from "react";
-import { gql, useMutation } from "@apollo/client";
+import { useAuth } from "@/components/Auth";
+import { graphql } from "@/gql";
+import { LoginUserMutation, LoginUserMutationVariables } from "@/gql/graphql";
+import { useMutation } from "@tanstack/react-query";
+import request from "graphql-request";
 
-const LOGIN_MUTATION = gql`
-  mutation Login($email: String!, $password: String!) {
-    getUserToken(email: $email, password: $password) {
+const loginMutation = graphql(`
+  mutation loginUser($email: String!, $password: String!) {
+    loginUser(email: $email, password: $password) {
       success
       message
-      token
+      user {
+        id
+        firstName
+        lastName
+        email
+      }
     }
   }
-`;
+`);
+
+import { useState } from "react";
 export default function Login() {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [login, { data, loading, error }] = useMutation(LOGIN_MUTATION);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await login({ variables: { email, password } });
-      if (res.data.getUserToken.success) {
-        console.log("Logged in successfully");
+  const mutation = useMutation<
+    LoginUserMutation,
+    Error,
+    LoginUserMutationVariables
+  >({
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      request<LoginUserMutation, LoginUserMutationVariables>(
+        import.meta.env.VITE_API_URL,
+        loginMutation,
+        {
+          email,
+          password,
+        },
+      ),
+    onSuccess: (response) => {
+      if (response.loginUser.user) {
+        login(response.loginUser.user);
       }
-    } catch (err) {
-      console.error("Login error", err);
-    }
-  };
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
 
-  if (data) {
-    console.log("data", data);
-  }
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :{error.message}</p>;
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    mutation.mutate({ email, password });
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -80,6 +102,7 @@ export default function Login() {
           <div>
             <button
               type="submit"
+              disabled={mutation.isPending}
               className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Sign in
