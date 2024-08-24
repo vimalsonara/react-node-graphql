@@ -1,7 +1,7 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
-  schema: [import.meta.env.VITE_API_URL],
+  schema: ["http://localhost:8080/graphql"],
   documents: ["src/**/*.tsx"],
   ignoreNoDocuments: true,
   generates: {
